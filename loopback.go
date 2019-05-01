@@ -28,11 +28,17 @@ func New() (l *Loopback) {
 
 // Read returns data which has been previous written to the loopback.
 func (l *Loopback) Read(p []byte) (n int, err error) {
-	return 0, io.EOF
+	if len(l.b) == 0 {
+		return 0, io.EOF
+	}
+	b := copy(p, l.b)
+	l.b = l.b[b:]
+	return b, nil
 }
 
 // Write is used to provide data to be looped back for later read
 // operations.
 func (l *Loopback) Write(p []byte) (n int, err error) {
+	l.b = append(l.b, p...)
 	return len(p), nil
 }
