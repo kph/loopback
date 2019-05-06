@@ -9,11 +9,13 @@ package loopback
 import (
 	"errors"
 	"io"
+	"sync"
 )
 
 // Loopback holds the pending loopback data
 type Loopback struct {
 	b []byte // Bytes buffered for I/O
+	m sync.Mutex
 }
 
 // NotImplemented is the error returned for methods or options
@@ -31,6 +33,8 @@ func (l *Loopback) Read(p []byte) (n int, err error) {
 	if len(l.b) == 0 {
 		return 0, io.EOF
 	}
+	l.m.Lock()
+	defer l.m.Unlock()
 	b := copy(p, l.b)
 	l.b = l.b[b:]
 	return b, nil
@@ -39,6 +43,8 @@ func (l *Loopback) Read(p []byte) (n int, err error) {
 // Write is used to provide data to be looped back for later read
 // operations.
 func (l *Loopback) Write(p []byte) (n int, err error) {
+	l.m.Lock()
+	defer l.m.Unlock()
 	l.b = append(l.b, p...)
 	return len(p), nil
 }
