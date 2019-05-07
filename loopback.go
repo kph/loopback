@@ -14,7 +14,7 @@ import (
 
 const defQuota = 1024 * 1024
 
-// Loopback holds the pending loopback data
+// Loopback holds the pending loopback data.
 type Loopback struct {
 	b       []byte // Bytes buffered for I/O
 	m       sync.Mutex
@@ -27,10 +27,10 @@ type Loopback struct {
 var NotImplemented = errors.New("Unimplemented")
 
 // New creates a new loopback interface.
-func New() (l *Loopback) {
+func New() io.ReadWriter {
 	l = &Loopback{b: make([]byte, 0)}
 	l.c = sync.NewCond(&l.m)
-	return
+	return l
 }
 
 // Read returns data which has been previous written to the loopback.
